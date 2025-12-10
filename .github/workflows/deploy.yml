@@ -55,44 +55,46 @@ jobs:
           COMMIT_URL="https://github.com/${GITHUB_REPOSITORY}/commit/${GITHUB_SHA}"
           AVATAR_URL="https://github.com/${{ github.actor }}.png"
 
-          jq -nc --arg username "DeployaBOT" \
-                --arg content "" \
-                --arg url "$RUN_URL" \
-                --arg domain "fattieslearnscoding.com" \
-                --arg status "✅ Deploy succeeded" \
-                --arg version "$VERSION" \
-                --arg commit "${{ github.sha }}" \
-                --arg commitUrl "$COMMIT_URL" \
-                --arg branch "${{ github.ref_name }}" \
-                --arg actor "${{ github.actor }}" \
-                --arg avatar "$AVATAR_URL" \
-                --arg runNumber "${{ github.run_number }}" \
-                '
+          jq -nc \
+            --arg username "DeployaBOT" \
+            --arg url "$RUN_URL" \
+            --arg domain "fattieslearnscoding.com" \
+            --arg status "✅ Deploy succeeded" \
+            --arg version "$VERSION" \
+            --arg commitShort "$SHORT_SHA" \
+            --arg commitUrl "$COMMIT_URL" \
+            --arg branch "${{ github.ref_name }}" \
+            --arg actor "${{ github.actor }}" \
+            --arg avatar "$AVATAR_URL" \
+            --arg runNumber "${{ github.run_number }}" \
+            '
+            {
+              username: $username,
+              avatar_url: $avatar,
+              embeds: [
                 {
-                  username: $username,
-                  avatar_url: $avatar,
-                  content: $content,
-                  embeds: [
+                  title: "\($domain) deployed",
+                  url: $url,
+                  description: $status,
+                  color: 5763719,
+                  fields: [
+                    { name: "Version", value: $version, inline: true },
+                    { name: "Run #",  value: $runNumber, inline: true },
+                    { name: "Branch", value: $branch, inline: true },
                     {
-                      title: "\($domain) deployed",
-                      url: $url,
-                      description: $status,
-                      color: 5763719,
-                      fields: [
-                        { name: "Version", value: $version, inline: true },
-                        { name: "Run #",  value: $runNumber, inline: true },
-                        { name: "Branch", value: $branch, inline: true },
-                        { "name": "Commit", "value": "`$SHORT_SHA` ($COMMIT_URL)" }
-                      ],
-                      footer: {
-                        text: "Triggered by \($actor)"
-                      },
-                      timestamp: (now | todate)
+                      name: "Commit",
+                      value: "[" + $commitShort + "](" + $commitUrl + ")",
+                      inline: false
                     }
-                  ]
+                  ],
+                  footer: {
+                    text: "Triggered by Fatty"
+                  },
+                  timestamp: (now | todate)
                 }
-                ' --arg commitShort "$(echo "${{ github.sha }}" | cut -c1-7)" \
-            > payload.json
+              ]
+            }
+            ' > payload.json
 
           curl -X POST \
             -H "Content-Type: application/json" \
@@ -109,44 +111,46 @@ jobs:
           COMMIT_URL="https://github.com/${GITHUB_REPOSITORY}/commit/${GITHUB_SHA}"
           AVATAR_URL="https://github.com/${{ github.actor }}.png"
 
-          jq -nc --arg username "DeployaBOT" \
-                --arg content "" \
-                --arg url "$RUN_URL" \
-                --arg domain "fattieslearnscoding.com" \
-                --arg status "❌ Deploy failed" \
-                --arg version "$VERSION" \
-                --arg commit "${{ github.sha }}" \
-                --arg commitUrl "$COMMIT_URL" \
-                --arg branch "${{ github.ref_name }}" \
-                --arg actor "${{ github.actor }}" \
-                --arg avatar "$AVATAR_URL" \
-                --arg runNumber "${{ github.run_number }}" \
-                '
+          jq -nc \
+            --arg username "DeployaBOT" \
+            --arg url "$RUN_URL" \
+            --arg domain "fattieslearnscoding.com" \
+            --arg status "❌ Deploy failed" \
+            --arg version "$VERSION" \
+            --arg commitShort "$SHORT_SHA" \
+            --arg commitUrl "$COMMIT_URL" \
+            --arg branch "${{ github.ref_name }}" \
+            --arg actor "${{ github.actor }}" \
+            --arg avatar "$AVATAR_URL" \
+            --arg runNumber "${{ github.run_number }}" \
+            '
+            {
+              username: $username,
+              avatar_url: $avatar,
+              embeds: [
                 {
-                  username: $username,
-                  avatar_url: $avatar,
-                  content: $content,
-                  embeds: [
+                  title: "\($domain) deploy failed",
+                  url: $url,
+                  description: $status,
+                  color: 15548997,
+                  fields: [
+                    { name: "Version", value: $version, inline: true },
+                    { name: "Run #",  value: $runNumber, inline: true },
+                    { name: "Branch", value: $branch, inline: true },
                     {
-                      title: "\($domain) deploy failed",
-                      url: $url,
-                      description: $status,
-                      color: 15548997,
-                      fields: [
-                        { name: "Version", value: $version, inline: true },
-                        { name: "Run #",  value: $runNumber, inline: true },
-                        { name: "Branch", value: $branch, inline: true },
-                        { "name": "Commit", "value": "`$SHORT_SHA` ($COMMIT_URL)" }
-                      ],
-                      footer: {
-                        text: "Triggered by \($actor)"
-                      },
-                      timestamp: (now | todate)
+                      name: "Commit",
+                      value: "[" + $commitShort + "](" + $commitUrl + ")",
+                      inline: false
                     }
-                  ]
+                  ],
+                  footer: {
+                    text: "Triggered by Fatty"
+                  },
+                  timestamp: (now | todate)
                 }
-                ' --arg commitShort "$(echo "${{ github.sha }}" | cut -c1-7)" \
-            > payload.json
+              ]
+            }
+            ' > payload.json
 
           curl -X POST \
             -H "Content-Type: application/json" \
