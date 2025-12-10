@@ -3,11 +3,15 @@ name: Deploy to cPanel
 on:
   push:
     branches:
-      - main   # or 'master' if that's your default branch
+      - main
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+
+    # Simple version string we can reuse
+    env:
+      VERSION: ${{ github.run_number }}-${{ github.sha }}
 
     steps:
       - name: Checkout repo
@@ -16,23 +20,51 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
-          node-version: '20'   # or whatever you're using locally
+          node-version: 20
 
       - name: Install dependencies
         run: npm ci || npm install
 
+      # Make VERSION available to Vite as import.meta.env.VITE_APP_VERSION
+      - name: Set build version env
+        run: echo "VITE_APP_VERSION=${{ env.VERSION }}" >> $GITHUB_ENV
+
       - name: Build project
         run: npm run build
 
-      # Deploy the dist folder to cPanel via FTP
+      # 🔥 REAL DEPLOY STEP
       - name: Deploy via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
-          server: ${{ secrets.FTP_HOST }}
+          server:   ${{ secrets.FTP_HOST }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          port: ${{ secrets.FTP_PORT }}
+          port:     ${{ secrets.FTP_PORT }}
           protocol: ftp
           local-dir: ./dist/
-          server-dir: ${{ secrets.FTP_REMOTE_DIR }}
+          # 👇 THIS is the key bit — deploy straight into your FTP home (public_html)
+          server-dir: /
           dangerous-clean-slate: true
+          log-level: standard
+
+      # ✅ Discord notification on success
+      - name: Notify Discord (success)
+        if: success()
+        run: |
+          json=$(jq -n \
+            --arg content "✅ **fattieslearnscoding.com** deployed!\nVersion: ${{ env.VERSION }}\nCommit: $GITHUB_SHA\nRun: $GITHUB_RUN_NUMBER" \
+            '{content: $content}')
+          curl -X POST -H "Content-Type: application/json" \
+            -d "$json" \
+            "${{ secrets.DISCORD_WEBHOOK }}"
+
+      # ❌ Discord notification on failure
+      - name: Notify Discord (failure)
+        if: failure()
+        run: |
+          json=$(jq -n \
+            --arg content "⚠️ Deployment **FAILED** for fattieslearnscoding.com\nCommit: $GITHUB_SHA\nCheck GitHub Actions logs." \
+            '{content: $content}')
+          curl -X POST -H "Content-Type: application/json" \
+            -d "$json" \
+            "${{ secrets.DISCORD_WEBHOOK }}"
