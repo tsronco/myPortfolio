@@ -96,7 +96,7 @@ jobs:
           curl -X POST \
             -H "Content-Type: application/json" \
             -d @payload.json \
-            "${{ secrets.DISCORD_WEBHOOK_URL }}"
+            "${{ secrets.DISCORD_WEBHOOK }}"
 
       # ---------- Discord failure embed ----------
       - name: Notify Discord (failure)
@@ -149,4 +149,4 @@ jobs:
           curl -X POST \
             -H "Content-Type: application/json" \
             -d @payload.json \
-            "${{ secrets.DISCORD_WEBHOOK_URL }}"
+            "${{ secrets.DISCORD_WEBHOOK }}"
