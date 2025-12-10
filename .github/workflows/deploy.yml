@@ -59,7 +59,7 @@ jobs:
             --arg username "DeployaBOT" \
             --arg url "$RUN_URL" \
             --arg domain "fattieslearnscoding.com" \
-            --arg status "✅ Deploy succeeded" \
+            --arg status "✅ Deployment succeeded" \
             --arg version "$VERSION" \
             --arg commitShort "$SHORT_SHA" \
             --arg commitUrl "$COMMIT_URL" \
@@ -73,7 +73,7 @@ jobs:
               avatar_url: $avatar,
               embeds: [
                 {
-                  title: "\($domain) deployed",
+                  title: "\($domain)",
                   url: $url,
                   description: $status,
                   color: 5763719,
@@ -115,7 +115,7 @@ jobs:
             --arg username "DeployaBOT" \
             --arg url "$RUN_URL" \
             --arg domain "fattieslearnscoding.com" \
-            --arg status "❌ Deploy failed" \
+            --arg status "❌ Deployment failed" \
             --arg version "$VERSION" \
             --arg commitShort "$SHORT_SHA" \
             --arg commitUrl "$COMMIT_URL" \
@@ -129,7 +129,7 @@ jobs:
               avatar_url: $avatar,
               embeds: [
                 {
-                  title: "\($domain) deploy failed",
+                  title: "\($domain)",
                   url: $url,
                   description: $status,
                   color: 15548997,
