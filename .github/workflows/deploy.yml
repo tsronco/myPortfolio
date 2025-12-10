@@ -9,10 +9,6 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
-    # Simple version string we can reuse
-    env:
-      VERSION: ${{ github.run_number }}-${{ github.sha }}
-
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -20,51 +16,137 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: '20'
 
       - name: Install dependencies
         run: npm ci || npm install
 
-      # Make VERSION available to Vite as import.meta.env.VITE_APP_VERSION
-      - name: Set build version env
-        run: echo "VITE_APP_VERSION=${{ env.VERSION }}" >> $GITHUB_ENV
+      # ---------- Build version (no more env warning) ----------
+      - name: Set build version
+        id: set_version
+        run: |
+          SHORT_SHA=${GITHUB_SHA::7}
+          VERSION="${GITHUB_RUN_NUMBER}-${SHORT_SHA}"
+          echo "build_version=$VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Build project
         run: npm run build
 
-      # 🔥 REAL DEPLOY STEP
+      # ---------- Deploy to cPanel via FTP ----------
       - name: Deploy via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
-          server:   ${{ secrets.FTP_HOST }}
+          server: ${{ secrets.FTP_HOST }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          port:     ${{ secrets.FTP_PORT }}
+          port: ${{ secrets.FTP_PORT }}
           protocol: ftp
           local-dir: ./dist/
-          # 👇 THIS is the key bit — deploy straight into your FTP home (public_html)
-          server-dir: /
+          server-dir: ${{ secrets.FTP_REMOTE_DIR }}
           dangerous-clean-slate: true
-          log-level: standard
 
-      # ✅ Discord notification on success
+      # ---------- Discord success embed ----------
       - name: Notify Discord (success)
         if: success()
         run: |
-          json=$(jq -n \
-            --arg content "✅ **fattieslearnscoding.com** deployed!\nVersion: ${{ env.VERSION }}\nCommit: $GITHUB_SHA\nRun: $GITHUB_RUN_NUMBER" \
-            '{content: $content}')
-          curl -X POST -H "Content-Type: application/json" \
-            -d "$json" \
-            "${{ secrets.DISCORD_WEBHOOK }}"
+          VERSION="${{ steps.set_version.outputs.build_version }}"
+          COMMIT_URL="https://github.com/${{ github.repository }}/commit/${{ github.sha }}"
+          RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          AVATAR_URL="https://github.com/${{ github.actor }}.png"
 
-      # ❌ Discord notification on failure
+          jq -nc --arg username "DeployaBOT" \
+                --arg content "" \
+                --arg url "$RUN_URL" \
+                --arg domain "fattieslearnscoding.com" \
+                --arg status "✅ Deploy succeeded" \
+                --arg version "$VERSION" \
+                --arg commit "${{ github.sha }}" \
+                --arg commitUrl "$COMMIT_URL" \
+                --arg branch "${{ github.ref_name }}" \
+                --arg actor "${{ github.actor }}" \
+                --arg avatar "$AVATAR_URL" \
+                --arg runNumber "${{ github.run_number }}" \
+                '
+                {
+                  username: $username,
+                  avatar_url: $avatar,
+                  content: $content,
+                  embeds: [
+                    {
+                      title: "\($domain) deployed",
+                      url: $url,
+                      description: $status,
+                      color: 5763719,
+                      fields: [
+                        { name: "Version", value: $version, inline: true },
+                        { name: "Run #",  value: $runNumber, inline: true },
+                        { name: "Branch", value: $branch, inline: true },
+                        { name: "Commit", value: "[`\(.commitShort)`](\($commitUrl))" }
+                      ],
+                      footer: {
+                        text: "Triggered by \($actor)"
+                      },
+                      timestamp: (now | todate)
+                    }
+                  ]
+                }
+                ' --arg commitShort "$(echo "${{ github.sha }}" | cut -c1-7)" \
+            > payload.json
+
+          curl -X POST \
+            -H "Content-Type: application/json" \
+            -d @payload.json \
+            "${{ secrets.DISCORD_WEBHOOK_URL }}"
+
+      # ---------- Discord failure embed ----------
       - name: Notify Discord (failure)
         if: failure()
         run: |
-          json=$(jq -n \
-            --arg content "⚠️ Deployment **FAILED** for fattieslearnscoding.com\nCommit: $GITHUB_SHA\nCheck GitHub Actions logs." \
-            '{content: $content}')
-          curl -X POST -H "Content-Type: application/json" \
-            -d "$json" \
-            "${{ secrets.DISCORD_WEBHOOK }}"
+          VERSION="${{ steps.set_version.outputs.build_version }}"
+          COMMIT_URL="https://github.com/${{ github.repository }}/commit/${{ github.sha }}"
+          RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          AVATAR_URL="https://github.com/${{ github.actor }}.png"
+
+          jq -nc --arg username "DeployaBOT" \
+                --arg content "" \
+                --arg url "$RUN_URL" \
+                --arg domain "fattieslearnscoding.com" \
+                --arg status "❌ Deploy failed" \
+                --arg version "$VERSION" \
+                --arg commit "${{ github.sha }}" \
+                --arg commitUrl "$COMMIT_URL" \
+                --arg branch "${{ github.ref_name }}" \
+                --arg actor "${{ github.actor }}" \
+                --arg avatar "$AVATAR_URL" \
+                --arg runNumber "${{ github.run_number }}" \
+                '
+                {
+                  username: $username,
+                  avatar_url: $avatar,
+                  content: $content,
+                  embeds: [
+                    {
+                      title: "\($domain) deploy failed",
+                      url: $url,
+                      description: $status,
+                      color: 15548997,
+                      fields: [
+                        { name: "Version", value: $version, inline: true },
+                        { name: "Run #",  value: $runNumber, inline: true },
+                        { name: "Branch", value: $branch, inline: true },
+                        { name: "Commit", value: "[`\(.commitShort)`](\($commitUrl))" }
+                      ],
+                      footer: {
+                        text: "Triggered by \($actor)"
+                      },
+                      timestamp: (now | todate)
+                    }
+                  ]
+                }
+                ' --arg commitShort "$(echo "${{ github.sha }}" | cut -c1-7)" \
+            > payload.json
+
+          curl -X POST \
+            -H "Content-Type: application/json" \
+            -d @payload.json \
+            "${{ secrets.DISCORD_WEBHOOK_URL }}"
