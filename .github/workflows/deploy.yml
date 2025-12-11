@@ -85,7 +85,7 @@ jobs:
                     { name: "Branch", value: $branch, inline: true },
                     {
                       name: "Changelog",
-                      value: "[" + $commitShort + "](" + $changelogUrl + ")",
+                      value: "[\($commitShort)](\($changelogUrl))",
                     }
                   ],
                   footer: {
