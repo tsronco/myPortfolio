@@ -156,4 +156,4 @@ jobs:
           curl -X POST \
             -H "Content-Type: application/json" \
             -d @payload.json \
-            "${{ secrets.DISCORD_WEBHOOK }}"
+            "${{ secrets.DISCORD_FAIL }}"
