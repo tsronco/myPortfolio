@@ -9,7 +9,7 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     env:
-      CHANGELOG_URL: https://loads.fattieslearnscoding.com/changelog
+      CHANGELOG_URL: https://fattieslearnscoding.com/changelog
 
     steps:
       - name: Checkout repo
