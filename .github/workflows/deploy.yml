@@ -8,6 +8,8 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    env:
+      CHANGELOG_URL: https://loads.fattieslearnscoding.com/changelog
 
     steps:
       - name: Checkout repo
@@ -52,7 +54,7 @@ jobs:
           VERSION="${{ steps.set_version.outputs.build_version }}"
           SHORT_SHA="$(echo "$GITHUB_SHA" | cut -c1-7)"
           RUN_URL="https://fattieslearnscoding.com"
-          COMMIT_URL="https://github.com/${GITHUB_REPOSITORY}/commit/${GITHUB_SHA}"
+          CHANGELOG_URL="${{ env.CHANGELOG_URL }}"
           AVATAR_URL="https://github.com/${{ github.actor }}.png"
 
           jq -nc \
@@ -62,7 +64,7 @@ jobs:
             --arg status "✅ Deployment succeeded" \
             --arg version "$VERSION" \
             --arg commitShort "$SHORT_SHA" \
-            --arg commitUrl "$COMMIT_URL" \
+            --arg changelogUrl "$CHANGELOG_URL" \
             --arg branch "${{ github.ref_name }}" \
             --arg actor "${{ github.actor }}" \
             --arg avatar "$AVATAR_URL" \
@@ -82,8 +84,8 @@ jobs:
                     { name: "Run #",  value: $runNumber, inline: true },
                     { name: "Branch", value: $branch, inline: true },
                     {
-                      name: "Commit",
-                      value: "[\($commitShort)](\($commitUrl))",
+                      name: "Changelog",
+                      value: "[" + $commitShort + "](" + $changelogUrl + ")",
                       inline: false
                     }
                   ],
@@ -107,7 +109,7 @@ jobs:
         run: |
           VERSION="${{ steps.set_version.outputs.build_version }}"
           SHORT_SHA="$(echo "$GITHUB_SHA" | cut -c1-7)"
-          RUN_URL="https://fattieslearnscoding.com"
+          RUN_URL="https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
           COMMIT_URL="https://github.com/${GITHUB_REPOSITORY}/commit/${GITHUB_SHA}"
           AVATAR_URL="https://github.com/${{ github.actor }}.png"
 
