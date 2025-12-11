@@ -51,14 +51,14 @@ jobs:
         run: |
           VERSION="${{ steps.set_version.outputs.build_version }}"
           SHORT_SHA="$(echo "$GITHUB_SHA" | cut -c1-7)"
-          RUN_URL="https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+          RUN_URL="https://fattieslearnscoding.com"
           COMMIT_URL="https://github.com/${GITHUB_REPOSITORY}/commit/${GITHUB_SHA}"
           AVATAR_URL="https://github.com/${{ github.actor }}.png"
 
           jq -nc \
             --arg username "DeployaBOT" \
             --arg url "$RUN_URL" \
-            --arg domain "fattieslearnscoding.com" \
+            --arg domain "www.fattieslearnscoding.com" \
             --arg status "✅ Deployment succeeded" \
             --arg version "$VERSION" \
             --arg commitShort "$SHORT_SHA" \
@@ -107,14 +107,14 @@ jobs:
         run: |
           VERSION="${{ steps.set_version.outputs.build_version }}"
           SHORT_SHA="$(echo "$GITHUB_SHA" | cut -c1-7)"
-          RUN_URL="https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+          RUN_URL="https://fattieslearnscoding.com"
           COMMIT_URL="https://github.com/${GITHUB_REPOSITORY}/commit/${GITHUB_SHA}"
           AVATAR_URL="https://github.com/${{ github.actor }}.png"
 
           jq -nc \
             --arg username "DeployaBOT" \
             --arg url "$RUN_URL" \
-            --arg domain "fattieslearnscoding.com" \
+            --arg domain "www.fattieslearnscoding.com" \
             --arg status "❌ Deployment failed" \
             --arg version "$VERSION" \
             --arg commitShort "$SHORT_SHA" \
