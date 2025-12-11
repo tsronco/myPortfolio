@@ -47,6 +47,13 @@ jobs:
           server-dir: ${{ secrets.FTP_REMOTE_DIR }}
           dangerous-clean-slate: true
 
+      # ---- TEMP: force a failure to test Discord ----
+      - name: TEMP – Force failure to test Discord
+        run: |
+          echo "Forcing a failure so we can test the emergency webhook..."
+          exit 1
+        
+
       # ---------- Discord success embed ----------
       - name: Notify Discord (success)
         if: success()
