@@ -86,7 +86,6 @@ jobs:
                     {
                       name: "Changelog",
                       value: "[" + $commitShort + "](" + $changelogUrl + ")",
-                      inline: false
                     }
                   ],
                   footer: {
