@@ -48,10 +48,10 @@ jobs:
           dangerous-clean-slate: true
 
       # ---- TEMP: force a failure to test Discord ----
-      - name: TEMP – Force failure to test Discord
-        run: |
-          echo "Forcing a failure so we can test the emergency webhook..."
-          exit 1 */}
+      #- name: TEMP – Force failure to test Discord
+      # run: |
+      #   echo "Forcing a failure so we can test the emergency webhook..."
+      #   exit 1 */}
         
 
       # ---------- Discord success embed ----------
