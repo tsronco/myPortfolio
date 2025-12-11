@@ -8,6 +8,7 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    #change this url for your different apps
     env:
       CHANGELOG_URL: https://fattieslearnscoding.com/changelog
 
@@ -51,7 +52,7 @@ jobs:
       #- name: TEMP – Force failure to test Discord
       # run: |
       #   echo "Forcing a failure so we can test the emergency webhook..."
-      #   exit 1 */}
+      #   exit 1
         
 
       # ---------- Discord success embed ----------
