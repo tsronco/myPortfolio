@@ -47,7 +47,7 @@ jobs:
 
           mkdir -p dist/changelog
 
-          cat > dist/changelog/latest.json << 'EOF'
+          cat > dist/latest.json << 'EOF'
           {
             "version": "__VERSION__",
             "commit": "__COMMIT__",
@@ -56,9 +56,9 @@ jobs:
           EOF
 
           # Replace placeholders
-          sed -i "s/__VERSION__/$VERSION/" dist/changelog/latest.json
-          sed -i "s/__COMMIT__/$SHORT_SHA/" dist/changelog/latest.json
-          sed -i "s#__COMMIT_URL__#https://github.com/${GITHUB_REPOSITORY}/commit/${GITHUB_SHA}#" dist//latest.json
+          sed -i "s/__VERSION__/$VERSION/" dist/latest.json
+          sed -i "s/__COMMIT__/$SHORT_SHA/" dist/latest.json
+          sed -i "s#__COMMIT_URL__#https://github.com/${GITHUB_REPOSITORY}/commit/${GITHUB_SHA}#" dist/latest.json
 
 
       # ---------- Deploy to cPanel via FTP ----------
