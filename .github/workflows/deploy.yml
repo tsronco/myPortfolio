@@ -70,7 +70,7 @@ jobs:
           protocol: ftp
           local-dir: ./dist/
           server-dir: ${{ secrets.FTP_REMOTE_DIR }}
-          dangerous-clean-slate: true
+          dangerous-clean-slate: false
 
       # ---- TEMP: force a failure to test Discord ----
       #- name: TEMP – Force failure to test Discord
