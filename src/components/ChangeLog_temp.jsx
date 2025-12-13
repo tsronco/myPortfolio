@@ -22,7 +22,7 @@ export function ChangeLog() {
       // If missing, try latest.json (same behavior as your script)
       if (!v || !c) {
         try {
-          const res = await fetch(`./latest.json?cache=${Date.now()}`, { cache: "no-store" })
+          const res = await fetch(`/latest.json?cache=${Date.now()}`, { cache: "no-store" })
           if (res.ok) {
             const data = await res.json()
             if (!v && data.version) v = data.version
