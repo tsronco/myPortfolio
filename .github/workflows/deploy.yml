@@ -35,19 +35,30 @@ jobs:
       - name: Build project
         run: npm run build
 
-      - name: Write latest.json
+      - name: Show build output
         run: |
-          VERSION="${{ steps.set_version.outputs.build_version }}"
-          SHORT_SHA="$(echo "$GITHUB_SHA" | cut -c1-7)"
-          COMMIT_URL="https://github.com/${GITHUB_REPOSITORY}/commit/${GITHUB_SHA}"
+          echo "Contents of dist:"
+          ls -R dist
 
-          cat > dist/latest.json <<EOF
+      - name: Write latest changelog metadata
+        run: |
+          SHORT_SHA="$(echo "$GITHUB_SHA" | cut -c1-7)"
+          VERSION="${GITHUB_RUN_NUMBER}-${SHORT_SHA}"
+
+          mkdir -p dist/changelog
+
+          cat > dist/changelog/latest.json << 'EOF'
           {
-            "version": "${VERSION}",
-            "commit": "${SHORT_SHA}",
-            "commitUrl": "${COMMIT_URL}"
+            "version": "__VERSION__",
+            "commit": "__COMMIT__",
+            "commitUrl": "__COMMIT_URL__"
           }
           EOF
+
+          # Replace placeholders
+          sed -i "s/__VERSION__/$VERSION/" dist/changelog/latest.json
+          sed -i "s/__COMMIT__/$SHORT_SHA/" dist/changelog/latest.json
+          sed -i "s#__COMMIT_URL__#https://github.com/${GITHUB_REPOSITORY}/commit/${GITHUB_SHA}#" dist/changelog/latest.json
 
 
       # ---------- Deploy to cPanel via FTP ----------
