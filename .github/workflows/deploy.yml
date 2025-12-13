@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     #change this url for your different apps
     env:
-      CHANGELOG_URL: https://fattieslearnscoding.com/changelog
+      CHANGELOG_URL: https://fattieslearnscoding.com/changelog?version=$VERSION&commit=$SHORT_SHA
 
     steps:
       - name: Checkout repo
@@ -34,6 +34,21 @@ jobs:
 
       - name: Build project
         run: npm run build
+
+      - name: Write latest.json
+        run: |
+          VERSION="${{ steps.set_version.outputs.build_version }}"
+          SHORT_SHA="$(echo "$GITHUB_SHA" | cut -c1-7)"
+          COMMIT_URL="https://github.com/${GITHUB_REPOSITORY}/commit/${GITHUB_SHA}"
+
+          cat > dist/latest.json <<EOF
+          {
+            "version": "${VERSION}",
+            "commit": "${SHORT_SHA}",
+            "commitUrl": "${COMMIT_URL}"
+          }
+          EOF
+
 
       # ---------- Deploy to cPanel via FTP ----------
       - name: Deploy via FTP
