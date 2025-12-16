@@ -8,6 +8,8 @@ import { ProjectsSection } from "../components/ProjectsSection";
 import { SkillsSection } from "../components/SkillsSection";
 import { StarBackground } from "../components/Starbackground";
 import { ThemeToggle } from "../components/ThemeToggle";
+import { ContactSection } from "../components/ContactSection";
+import { Footer } from "../components/Footer";
 
 export const Home = () => {
     const location = useLocation();
@@ -42,10 +44,11 @@ export const Home = () => {
                     <AboutSection />
                     <SkillsSection />
                     <ProjectsSection />
+                    <ContactSection />
                 </main>
 
             {/* Footer */}
-
+                <Footer />
         </div>
     );
 }
